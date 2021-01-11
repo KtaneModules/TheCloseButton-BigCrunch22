@@ -371,7 +371,6 @@ public class TheCloseButtonScript : MonoBehaviour
 			Pop();
 			PopupAd = true;
 		}
-		
 		else
 		{
 			yield return new WaitForSecondsRealtime(2f);
@@ -455,11 +454,16 @@ public class TheCloseButtonScript : MonoBehaviour
 		CloseButtons[Count].AddInteractionPunch(.2f);
 		AllObject[2].SetActive(false);
 		Audio.PlaySoundAtTransform(SFX[0].name, transform);
+		if (Count != FocusPoint)
+			WillStrike = true;
+		else
+			WillSolve = true;
 		yield return new WaitForSecondsRealtime(3f);
 		Debug.LogFormat("[The Close Button #{0}] You pressed Close Button Number {1}", moduleId, (Count+1).ToString());	
 		if (Count == FocusPoint)
 		{
-			Debug.LogFormat("[The Close Button #{0}] That was correct. Module solved.", moduleId, (Count+1).ToString());	
+			Debug.LogFormat("[The Close Button #{0}] That was correct. Module solved.", moduleId, (Count+1).ToString());
+			RealSolve = true;
 			Module.HandlePass();
 			Audio.PlaySoundAtTransform(SFX[9].name, transform);
 			for (int x = 0; x < 4; x++)
@@ -474,6 +478,7 @@ public class TheCloseButtonScript : MonoBehaviour
 		{
 			Debug.LogFormat("[The Close Button #{0}] That was incorrect. Module gave a strike.", moduleId, (Count+1).ToString());
 			Module.HandleStrike();
+			WillStrike = false;
 			Mackerel = new int[][]{
 			new int[] {0, 1, 2, 3, 4, 5},
 			new int[] {6, 7, 8, 9, 10, 11},
@@ -491,9 +496,9 @@ public class TheCloseButtonScript : MonoBehaviour
 	//twitch plays
     #pragma warning disable 414
     private readonly string TwitchHelpMessage = @"To close the pop-up, use !{0} close | If a pop-up grid appears, use !{0} press [1-36] to press the corresponding close button in reading order | If you really want to press the OK button, use !{0} I will press OK (This can not be stopped)";
-    #pragma warning restore 414
-	
-	bool PopupAd = true, PopupAds = false;
+	#pragma warning restore 414
+
+	bool PopupAd = true, PopupAds = false, WillStrike = false, RealSolve = false, WillSolve = false;
 	
     IEnumerator ProcessTwitchCommand(string command)
 	{
@@ -559,5 +564,32 @@ public class TheCloseButtonScript : MonoBehaviour
 			yield return "strike";
 			CloseButtons[Int32.Parse(parameters[1]) - 1].OnInteract();
 		}
+	}
+
+	IEnumerator TwitchHandleForcedSolve()
+    {
+		if (WillStrike)
+        {
+			StopAllCoroutines();
+			Module.HandlePass();
+			Audio.PlaySoundAtTransform(SFX[9].name, transform);
+			for (int x = 0; x < 4; x++)
+			{
+				Models[0].material = BorderShutdown[x];
+				Models[1].material = TileShutdown[x];
+				yield return new WaitForSecondsRealtime(0.06f);
+			}
+		}
+        else if (!WillSolve)
+        {
+			if (!Activated)
+            {
+				while (!PopupAd) { yield return true; }
+				Popup[1].OnInteract();
+			}
+			while (!PopupAds) { yield return true; }
+			CloseButtons[FocusPoint].OnInteract();
+		}
+		while (!RealSolve) { yield return true; }
 	}
 }
