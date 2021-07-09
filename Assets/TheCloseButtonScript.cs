@@ -317,7 +317,7 @@ public class TheCloseButtonScript : MonoBehaviour
 			
 			for (int x = 0; x < 36; x++)
 			{
-				if (x != (FocusPoint - 1) && AnotherTemp[x] == Mackerel[x / 6][x % 6])
+				if (x != FocusPoint && AnotherTemp[x] == Mackerel[x / 6][x % 6])
 				{
 					break;
 				}
