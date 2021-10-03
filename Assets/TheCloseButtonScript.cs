@@ -307,7 +307,7 @@ public class TheCloseButtonScript : MonoBehaviour
 		{
 			FocusPoint = UnityEngine.Random.Range(0,36);
 			numberList.Shuffle();
-			int[] Temp = new int[3], AnotherTemp = numberList.ToArray();
+			int[] Temp = new int[3];
 			Temp[0] = Mackerel[FocusPoint / 6][FocusPoint % 6];
 			Temp[1] = Array.IndexOf(numberList.ToArray(), Temp[0]);
 			Temp[2] = numberList[FocusPoint];
@@ -317,7 +317,7 @@ public class TheCloseButtonScript : MonoBehaviour
 			
 			for (int x = 0; x < 36; x++)
 			{
-				if (x != FocusPoint && AnotherTemp[x] == Mackerel[x / 6][x % 6])
+				if (x != FocusPoint && numberList[x] == Mackerel[x / 6][x % 6])
 				{
 					break;
 				}
